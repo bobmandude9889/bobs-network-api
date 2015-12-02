@@ -12,15 +12,15 @@ public class ConnectionServer {
 	PacketHandler packetHandler;
 	Thread thread;
 	ServerSocket serverSocket;
-	
-	public ConnectionServer(int port, final PacketHandler packetHandler) throws IOException{
+
+	public ConnectionServer(int port, final PacketHandler packetHandler) throws IOException {
 		connections = new CopyOnWriteArrayList<Connection>();
 		this.packetHandler = packetHandler;
 		serverSocket = new ServerSocket(port);
-		thread = new Thread(new Runnable(){
+		thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while(true){
+				while (true) {
 					Socket socket = null;
 					try {
 						socket = serverSocket.accept();
@@ -33,22 +33,33 @@ public class ConnectionServer {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					if(i != -1)
+					if (i != -1)
 						connections.add(NetworkAPI.getConnectionHandler().getConnection(i));
 				}
 			}
 		});
 		thread.start();
 	}
-	
-	public List<Connection> getConnections(){
+
+	public List<Connection> getConnections() {
 		return connections;
 	}
-	
-	public void broadcast(Packet packet){
-		for(Connection connection : connections){
+
+	public void broadcast(Packet packet) {
+		for (Connection connection : connections) {
 			connection.sendPacket(packet);
 		}
 	}
-	
+
+	public void close() {
+		try {
+			serverSocket.close();
+			for (Connection conn : connections) {
+				conn.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 }
