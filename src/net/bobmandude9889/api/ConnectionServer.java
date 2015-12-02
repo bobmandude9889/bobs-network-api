@@ -51,14 +51,10 @@ public class ConnectionServer {
 		}
 	}
 
-	public void close() {
-		try {
-			serverSocket.close();
-			for (Connection conn : connections) {
-				conn.close();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+	public void close() throws IOException {
+		serverSocket.close();
+		for (Connection conn : connections) {
+			conn.close();
 		}
 	}
 
