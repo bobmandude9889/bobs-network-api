@@ -51,7 +51,9 @@ public class ConnectionServer {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public void close() throws IOException {
+		thread.stop();
 		serverSocket.close();
 		for (Connection conn : connections) {
 			conn.close();

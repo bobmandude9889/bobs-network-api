@@ -9,6 +9,7 @@ public class PacketHandler implements Runnable {
 	private List<Connection> connections;
 	private HashMap<String, PacketListener> listeners;
 	private Thread listenerThread;
+	private boolean close = false;
 
 	public PacketHandler() {
 		listeners = new HashMap<String, PacketListener>();
@@ -27,11 +28,15 @@ public class PacketHandler implements Runnable {
 		return connections.size() - 1;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void run() {
-		while (true) {
+		while (!close) {
 			for (Connection connection : connections) {
-				if (connection.hasWaitingPacket()) {
+				if(connection.getTCPSocket().isClosed()){
+					connections.remove(connection);
+					
+				} else if (connection.hasWaitingPacket()) {
 					try {
 						Packet packet = connection.nextPacket();
 						String name = packet.getName();
@@ -48,6 +53,11 @@ public class PacketHandler implements Runnable {
 				}
 			}
 		}
+		listenerThread.stop();
+	}
+	
+	public void close(){
+		close = true;
 	}
 
 }
